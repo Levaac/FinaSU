@@ -178,12 +178,13 @@ fn classify(
         .filter(|s| !s.is_empty())
         .map(str::to_owned)
         .collect();
-    // GKI-LKM is upstream's clearer label for the same v2.3.0 wire layout since r18.4.
-    // Other revisions remain visible/read-only.
+    // GKI-LKM is upstream's clearer label for the GKI LKM implementation.
+    // SUSFS v2.4.0 retains the discovery ABI used here (version, variant and
+    // enabled-feature payloads); keep unknown future revisions read-only.
     let compatible = version.0 == 0
         && features.0 == 0
         && variant.0 == 0
-        && version.1.as_deref() == Some("v2.3.0")
+        && matches!(version.1.as_deref(), Some("v2.3.0" | "v2.4.0"))
         && matches!(variant.1.as_deref(), Some("GKI" | "NON-GKI" | "GKI-LKM"))
         && !tokens.is_empty()
         && tokens
@@ -672,6 +673,14 @@ mod tests {
             &response("GKI"),
         );
         assert_eq!(builtin.implementation, "builtin");
+        let builtin_v24 = classify(
+            &response("v2.4.0"),
+            &response("CONFIG_KSU_SUSFS_SUS_PATH"),
+            &response("GKI"),
+        );
+        assert_eq!(builtin_v24.status, "compatible");
+        assert_eq!(builtin_v24.version, "v2.4.0");
+        assert_eq!(builtin_v24.implementation, "builtin");
         let lkm = classify(
             &response("v2.3.0"),
             &response("SUSFS_LKM_MODULES\nCONFIG_KSU_SUSFS_SUS_PATH"),
