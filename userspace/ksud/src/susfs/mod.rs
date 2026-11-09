@@ -1,4 +1,4 @@
-//! FinaSU-owned SUSFS management. Never installs ksu_susfs or edits module configs.
+//! FinaSU-owned SUSFS management.  Never installs ksu_susfs or edits module configs.
 #![cfg_attr(not(target_os = "android"), allow(dead_code))]
 mod abi;
 mod apply;
